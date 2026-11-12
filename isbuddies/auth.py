@@ -66,8 +66,13 @@ def signup():
             error = "Enter a valid email address."
         elif pw != f.get("confirm_password", ""):
             error = "Passwords do not match."
-        elif len(pw) < 8 or not re.search(r"[A-Za-z]", pw) or not re.search(r"\d", pw):
-            error = "Password needs 8+ characters with a letter and a number."
+        elif (
+            len(pw) < 8
+            or not re.search(r"[A-Za-z]", pw)
+            or not re.search(r"\d", pw)
+            or not re.search(r"[^A-Za-z0-9\s]", pw)
+        ):
+            error = "Password needs 8+ characters with a letter, a number, and a special character."
         elif f.get("role") not in SIGNUP_ROLES:
             error = "Please select a valid role."
         elif User.query.filter_by(username=username).first():

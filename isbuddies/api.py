@@ -408,11 +408,11 @@ def create_sale():
     if discount > subtotal:
         raise APIInputError("Discount cannot exceed the sale subtotal.")
     payment_method = d.get("payment_method", "Cash")
-    if not isinstance(payment_method, str) or payment_method not in {"Cash", "GCash", "Maya"}:
-        raise APIInputError("Choose a supported payment method.")
+    if payment_method != "Cash":
+        raise APIInputError("Payment method must be Cash.")
     total = subtotal - discount
     amount_tendered = money_value(d.get("amount_tendered", total), "Amount tendered")
-    if payment_method == "Cash" and amount_tendered < total:
+    if amount_tendered < total:
         raise APIInputError("Amount tendered is less than the sale total.")
 
     customer_name = optional_text(d, "customer", 120)
@@ -759,6 +759,9 @@ def dashboard_stats():
     # Total products
     total_products = Product.query.count()
 
+    # Total users
+    total_users = User.query.count()
+
     # Total sales count
     total_sales = Sale.query.count()
 
@@ -816,6 +819,7 @@ def dashboard_stats():
         "sales_today": float(sales_today),
         "low_stock": low_stock,
         "total_products": total_products,
+        "total_users": total_users,
         "total_sales": total_sales,
         "best_seller": best_seller[0] if best_seller else "N/A",
         "best_seller_qty": best_seller[1] if best_seller else 0,

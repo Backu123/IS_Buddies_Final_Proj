@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}IS Buddies{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='2') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css', v='4') }}">
 </head>
 <body>
   <main class="auth">
@@ -27,5 +27,16 @@
       {% block form %}{% endblock %}
     </section>
   </main>
+  <script>
+  document.querySelectorAll(".password-toggle").forEach(button => {
+    button.addEventListener("click", () => {
+      const input = button.closest(".password-field").querySelector("input");
+      const isVisible = input.type === "text";
+      input.type = isVisible ? "password" : "text";
+      button.setAttribute("aria-pressed", String(!isVisible));
+      button.setAttribute("aria-label", isVisible ? "Show password" : "Hide password");
+    });
+  });
+  </script>
 </body>
 </html>

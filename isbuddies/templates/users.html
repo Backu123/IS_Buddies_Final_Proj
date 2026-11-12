@@ -3,7 +3,7 @@
 {% block content %}
 <div class="top">
   <h1>User Management</h1>
-  <span class="tag">Admin Only</span>
+  <span class="tag">{{ users|length }} user{{ '' if users|length == 1 else 's' }}</span>
 </div>
 
 <div class="card">

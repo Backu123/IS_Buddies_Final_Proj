@@ -81,11 +81,15 @@
       </label>
       
       <label class="f">Product Name
-        <input id="prod-name" class="in" required placeholder="e.g. Spiral Notebook 80 leaves">
+        <input id="prod-name" class="in" list="prod-name-options" required placeholder="e.g. Spiral Notebook 80 leaves">
+        <datalist id="prod-name-options"></datalist>
       </label>
       
       <label class="f">Category
-        <input id="prod-category" class="in" placeholder="Paper / Writing / Filing...">
+        <input id="prod-category" class="in" list="prod-category-options" placeholder="Choose or enter a category">
+        <datalist id="prod-category-options">
+          {% for cat in categories %}<option value="{{ cat }}">{% endfor %}
+        </datalist>
       </label>
       
       <label class="f">Supplier
@@ -102,7 +106,7 @@
       </div>
 
       <label class="f">Unit Price (₱)
-        <input id="prod-price" class="in" type="number" step="0.01" min="0" placeholder="0.00" required>
+        <input id="prod-price" class="in" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00" required>
       </label>
 
       <div class="row" style="margin-top:12px;">
@@ -145,6 +149,14 @@ async function loadProducts(page = 1) {
     return;
   }
   loadedProducts = data.products || [];
+  const productNames = [...new Set(loadedProducts.map(product => product.name).filter(Boolean))];
+  document.getElementById("prod-name-options").replaceChildren(
+    ...productNames.map(name => {
+      const option = document.createElement("option");
+      option.value = name;
+      return option;
+    })
+  );
 
   if (loadedProducts.length === 0) {
     tbody.innerHTML = `<tr><td colspan="${canEdit ? 9 : 8}" class="note">No products found.</td></tr>`;

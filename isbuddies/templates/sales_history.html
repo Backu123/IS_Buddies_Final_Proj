@@ -6,9 +6,9 @@
   <span class="tag">Past Transactions</span>
 </div>
 
-<div class="card">
+<div class="card sales-history-card">
   <h2>Transaction Log</h2>
-  <div class="row" style="align-items:end; flex-wrap:wrap">
+  <div class="row sales-history-filters" style="align-items:end; flex-wrap:wrap">
     <label class="f">From<input id="sales-date-from" class="in" type="date"></label>
     <label class="f">To<input id="sales-date-to" class="in" type="date"></label>
     <label class="f">Customer / Receipt<input id="sales-search" class="in" placeholder="Search..."></label>
@@ -43,7 +43,7 @@
 </div>
 
 <!-- Modal for Viewing Sale Details -->
-<div id="sale-detail-card" class="card" style="display:none; margin-top:20px; border:2px solid var(--navy);">
+<div id="sale-detail-card" class="card sales-history-card" style="display:none; margin-top:20px; border:2px solid var(--navy);">
   <div style="display:flex; justify-content:space-between; align-items:center;">
     <h2 id="sale-detail-title">Transaction Details</h2>
     <button class="btn o" onclick="document.getElementById('sale-detail-card').style.display='none'">Close</button>

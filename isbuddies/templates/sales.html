@@ -6,14 +6,14 @@
   <span class="tag">{{ 'Cashier: ' ~ current_user.full_name if current_user.role in ['admin', 'sales_personnel'] else 'Read-only' }}</span>
 </div>
 
-<div class="row">
-  <div class="card" style="flex:3">
+<div class="row pos-layout{% if current_user.role == 'instructor' %} pos-layout-readonly{% endif %}">
+  <div class="card">
     <h2>Available Products</h2>
     {% if current_user.role == 'instructor' %}
     <p class="note">You can view products here. Sales transactions are available to Admin and Sales Personnel.</p>
     {% endif %}
     <input id="pos-search" class="in" placeholder="🔍 Search product name or scan SKU..." style="margin-bottom:12px"/>
-    <div class="sc" style="max-height:480px; overflow-y:auto;">
+    <div class="sc pos-products-scroll">
       <table>
         <thead>
           <tr>
@@ -33,9 +33,9 @@
   </div>
 
   {% if current_user.role in ['admin', 'sales_personnel'] %}
-  <div class="card" style="flex:2">
+  <div class="card">
     <h2>Current Order</h2>
-    <div class="sc" style="max-height:220px; overflow-y:auto; margin-bottom:12px;">
+    <div class="sc pos-cart-scroll">
       <table id="cart-table">
         <thead>
           <tr><th>Item</th><th style="text-align:center">Qty</th><th style="text-align:right">Subtotal</th><th></th></tr>
@@ -46,7 +46,6 @@
       </table>
     </div>
 
-    <!-- Summary Calculations -->
     <div style="background:var(--tint); padding:12px; border-radius:10px; margin-bottom:12px; font-size:13px;">
       <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
         <span>Subtotal:</span>
@@ -69,11 +68,7 @@
 
     <div class="row" style="gap:10px;">
       <label class="f" style="flex:1">Payment Method
-        <select id="pos-method" class="in">
-          <option value="Cash">Cash</option>
-          <option value="GCash">GCash</option>
-          <option value="Maya">Maya</option>
-        </select>
+        <input id="pos-method" class="in" value="Cash" readonly>
       </label>
       <label class="f" style="flex:1">Amount Tendered (₱)
         <input id="pos-tendered" type="number" step="0.01" min="0" class="in" placeholder="0.00" oninput="updateCartTotals()">
@@ -85,35 +80,33 @@
       <strong id="pos-change" style="color:var(--navy)">₱ 0.00</strong>
     </div>
 
-    <div class="row">
-      <button class="btn y" style="flex:2" onclick="submitSale()">✓ Complete Sale</button>
-      <button class="btn o" style="flex:1" onclick="clearCart()">Clear</button>
+    <div class="row pos-order-actions">
+      <button class="btn y" onclick="submitSale()">✓ Complete Sale</button>
+      <button class="btn o" onclick="clearCart()">Clear</button>
     </div>
   </div>
   {% endif %}
 </div>
 
 {% if current_user.role in ['admin', 'sales_personnel'] %}
-<!-- Receipt Modal / Printable Preview -->
-<div id="receipt-card" class="card" style="display:none; margin-top:20px; border:2px solid var(--navy);">
-  <div style="display:flex; justify-content:space-between; align-items:center;">
+<div id="receipt-card" class="card pos-receipt-card" style="display:none;">
+  <div class="pos-receipt-header">
     <h2>Receipt Preview</h2>
-    <div>
+    <div class="pos-receipt-actions">
       <button class="btn y" onclick="window.print()">🖨️ Print Receipt</button>
       <button class="btn o" onclick="document.getElementById('receipt-card').style.display='none'">Close</button>
     </div>
-    {% endif %}
   </div>
   <div id="receipt-content" style="background:#fff; border:1px dashed var(--dashed); padding:20px; border-radius:10px; max-width:420px; margin:15px auto; font-family:monospace; font-size:12px;">
-    <!-- Filled dynamically -->
   </div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}
 <script>
 let products = [];
-let cart = []; // [{ product_id, name, unit_price, qty, stock }]
+let cart = [];
 const canTransact = {{ 'true' if current_user.role in ['admin', 'sales_personnel'] else 'false' }};
 
 function escapeHTML(value) {
@@ -155,8 +148,8 @@ async function loadPosProducts() {
       <td style="text-align:right"><strong>${p.stock}</strong></td>
       <td style="text-align:right">₱ ${p.unit_price.toFixed(2)}</td>
       ${canTransact ? `<td style="text-align:center">
-        <button class="btn y" style="padding:4px 10px; min-height:auto; font-size:11px;" 
-          ${p.stock <= 0 ? 'disabled style="opacity:0.5"' : ''}
+        <button class="btn y pos-add-button"
+          ${p.stock <= 0 ? 'disabled' : ''}
           onclick="addToCart(${p.id})">
           ${p.stock <= 0 ? 'Out of Stock' : '+ Add'}
         </button>
@@ -262,7 +255,7 @@ async function submitSale() {
   const grandTotal = Math.max(0, subtotal - discount);
   const tendered = parseFloat(document.getElementById("pos-tendered").value) || 0;
 
-  if (tendered < grandTotal && document.getElementById("pos-method").value === "Cash") {
+  if (tendered < grandTotal) {
     alert("Amount tendered is less than the grand total.");
     return;
   }
@@ -287,7 +280,6 @@ async function submitSale() {
     return;
   }
 
-  // Display receipt
   const receiptCard = document.getElementById("receipt-card");
   const receiptContent = document.getElementById("receipt-content");
   
@@ -325,7 +317,6 @@ async function submitSale() {
   receiptCard.style.display = "block";
   receiptCard.scrollIntoView({ behavior: 'smooth' });
 
-  // Clear cart and refresh product list (stock was deducted!)
   clearCart();
   loadPosProducts();
 }

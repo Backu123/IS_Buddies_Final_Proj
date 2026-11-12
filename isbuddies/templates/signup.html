@@ -24,13 +24,25 @@
           </select>
         </label>
         <label class="f" for="password">Password
-          <input class="in" id="password" name="password" type="password" placeholder="Create a password" required minlength="8" autocomplete="new-password">
+          <span class="password-field">
+            <input class="in" id="password" name="password" type="password" placeholder="Create a password" required minlength="8" pattern="(?=.*[A-Za-z])(?=.*[0-9])(?=.*[^A-Za-z0-9\s]).{8,}" title="Use at least 8 characters, including a letter, a number, and a special character." autocomplete="new-password">
+            <button class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">
+              <svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-off-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.1 3.8M6.2 6.2C3.5 8.1 2 12 2 12s3.6 7 10 7a10 10 0 0 0 3-.5"/></svg>
+            </button>
+          </span>
         </label>
         <label class="f" for="confirm_password">Confirm password
-          <input class="in" id="confirm_password" name="confirm_password" type="password" placeholder="Re-enter password" required minlength="8" autocomplete="new-password">
+          <span class="password-field">
+            <input class="in" id="confirm_password" name="confirm_password" type="password" placeholder="Re-enter password" required minlength="8" autocomplete="new-password">
+            <button class="password-toggle" type="button" aria-label="Show password" aria-pressed="false">
+              <svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-off-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 3 18 18M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.1 3.8M6.2 6.2C3.5 8.1 2 12 2 12s3.6 7 10 7a10 10 0 0 0 3-.5"/></svg>
+            </button>
+          </span>
         </label>
 
-        <p class="note">Password: at least 8 characters, with a letter and a number.</p>
+        <p class="note">Password: at least 8 characters, with a letter, a number, and a special character.</p>
 
         <!-- Show errors here: username taken, passwords do not match, weak password -->
         <div class="auth-error" role="alert">{% for m in get_flashed_messages() %}{{ m }}<br>{% endfor %}</div>
