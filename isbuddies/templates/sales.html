@@ -53,7 +53,7 @@
       </div>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
         <span>Discount (₱):</span>
-        <input id="cart-discount" type="number" step="0.01" min="0" value="0.00" style="width:90px; text-align:right; padding:4px 6px; border:1px solid var(--border); border-radius:6px;" oninput="updateCartTotals()">
+        <input id="cart-discount" type="text" placeholder="0.00" style="width:90px; text-align:right; padding:4px 6px; border:1px solid var(--border); border-radius:6px;" oninput="updateCartTotals()" readonly>
       </div>
       <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:700; color:var(--navy); border-top:1px dashed var(--dashed); padding-top:6px; margin-top:6px;">
         <span>Grand Total:</span>
@@ -107,7 +107,7 @@
 <script>
 let products = [];
 let cart = [];
-const canTransact = {{ 'true' if current_user.role in ['admin', 'sales_personnel'] else 'false' }};
+const canTransact = "{{ 'true' if current_user.role in ['admin', 'sales_personnel'] else 'false' }}" === "true";
 
 function escapeHTML(value) {
   return String(value ?? "").replace(/[&<>"']/g, ch => ({
@@ -204,7 +204,7 @@ function removeFromCart(index) {
 function clearCart() {
   cart = [];
   document.getElementById("pos-customer").value = "";
-  document.getElementById("cart-discount").value = "0.00";
+  document.getElementById("cart-discount").value = null;
   document.getElementById("pos-tendered").value = "";
   renderCart();
 }
@@ -215,33 +215,70 @@ function renderCart() {
     tbody.innerHTML = `<tr><td colspan="4" class="note" style="text-align:center;">Cart is empty.</td></tr>`;
   } else {
     tbody.innerHTML = cart.map((item, idx) => `
-      <tr>
-        <td><strong>${escapeHTML(item.name)}</strong><br><small>₱${item.unit_price.toFixed(2)} each</small></td>
-        <td style="text-align:center">
-          <button class="btn o" style="padding:2px 6px; min-height:auto;" onclick="changeCartQty(${idx}, -1)">-</button>
-          <span style="margin:0 6px; font-weight:600;">${item.qty}</span>
-          <button class="btn o" style="padding:2px 6px; min-height:auto;" onclick="changeCartQty(${idx}, 1)">+</button>
-        </td>
-        <td style="text-align:right">₱ ${(item.qty * item.unit_price).toFixed(2)}</td>
-        <td style="text-align:center">
-          <a href="#" style="color:var(--bad-text); text-decoration:none;" onclick="removeFromCart(${idx})">✕</a>
-        </td>
-      </tr>
-    `).join("");
+    <tr>
+      <td>
+        <span class="cart-item-name" title="${escapeHTML(item.name)}">${escapeHTML(item.name)}</span>
+        <small>₱${item.unit_price.toFixed(2)} each</small>
+      </td>
+      <td style="text-align:center; white-space:nowrap;">
+        <button class="btn o" style="padding:2px 6px; min-height:auto;" onclick="changeCartQty(${idx}, -1)">-</button>
+        <input type="number" class="cart-qty-input" min="1" max="${item.stock}"
+              value="${item.qty}"
+              onfocus="this.select()"
+              onchange="setCartQty(${idx}, this.value)"
+              onkeydown="if(event.key==='Enter') this.blur()">
+        <button class="btn o" style="padding:2px 6px; min-height:auto;" onclick="changeCartQty(${idx}, 1)">+</button>
+      </td>
+      <td style="text-align:right">₱ ${(item.qty * item.unit_price).toFixed(2)}</td>
+      <td style="text-align:center">
+        <a href="#" style="color:var(--bad-text); text-decoration:none;" onclick="removeFromCart(${idx}); return false;">✕</a>
+      </td>
+    </tr>
+  `).join("");
   }
   updateCartTotals();
 }
 
 function updateCartTotals() {
   const subtotal = cart.reduce((acc, item) => acc + (item.qty * item.unit_price), 0);
-  const discount = parseFloat(document.getElementById("cart-discount").value) || 0;
-  const grandTotal = Math.max(0, subtotal - discount);
+
+  // discount of 2% every 1000 subtotal
+  const autoDiscount = Math.floor(subtotal / 1000) * 0.02 * subtotal;
+
+  // max of 10% discount
+  const maxDiscount = subtotal * 0.10;
+  const finalDiscount = Math.min(autoDiscount, maxDiscount);
+
+  // print the auto discount in the discount input field
+  document.getElementById("cart-discount").value = finalDiscount.toFixed(2);
+
+  const grandTotal = Math.max(0, subtotal - finalDiscount);
   const tendered = parseFloat(document.getElementById("pos-tendered").value) || 0;
   const change = Math.max(0, tendered - grandTotal);
 
   document.getElementById("cart-subtotal").textContent = `₱ ${subtotal.toFixed(2)}`;
   document.getElementById("cart-total").textContent = `₱ ${grandTotal.toFixed(2)}`;
   document.getElementById("pos-change").textContent = `₱ ${change.toFixed(2)}`;
+}
+
+function setCartQty(index, value) {
+  const item = cart[index];
+  if (!item) return;
+
+  let qty = parseInt(value, 10);
+
+  if (isNaN(qty) || qty < 1) {
+    // invalid or empty: revert to the previous quantity
+    renderCart();
+    return;
+  }
+  if (qty > item.stock) {
+    alert(`Maximum available stock is ${item.stock}`);
+    qty = item.stock;
+  }
+
+  item.qty = qty;
+  renderCart();
 }
 
 async function submitSale() {
@@ -282,6 +319,7 @@ async function submitSale() {
 
   const receiptCard = document.getElementById("receipt-card");
   const receiptContent = document.getElementById("receipt-content");
+  const cashierName = {{ current_user.full_name|tojson }};
   
   receiptContent.innerHTML = `
     <div style="text-align:center; margin-bottom:10px;">
@@ -292,7 +330,7 @@ async function submitSale() {
     </div>
     <div>Receipt No: <strong>${data.receipt_no}</strong></div>
     <div>Date: ${new Date().toLocaleString()}</div>
-    <div>Cashier: ${escapeHTML({{ current_user.full_name|tojson }})}</div>
+    <div>Cashier: ${escapeHTML(cashierName)}</div>
     <div>Customer: ${escapeHTML(payload.customer || 'Walk-in')}</div>
     <div>Payment: ${escapeHTML(payload.payment_method)}</div>
     <hr style="border:none; border-top:1px dashed #000; margin:8px 0;">
@@ -327,4 +365,37 @@ document.addEventListener("DOMContentLoaded", () => {
   if (canTransact) loadCustomerOptions();
 });
 </script>
+
+<style>
+  #cart-table { table-layout: fixed; width: 100%; }
+  #cart-table th:nth-child(2) { width: 92px; }
+  #cart-table th:nth-child(3) { width: 76px; }
+  #cart-table th:nth-child(4) { width: 22px; }
+
+  .cart-item-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;        /* change to 3 for even more */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;          /* allow wrapping */
+  word-break: break-word;
+}
+
+  .cart-qty-input {
+    width: 44px;
+    text-align: center;
+    font-weight: 600;
+    padding: 2px 0px;
+    margin: 0 2px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    -moz-appearance: textfield;
+  }
+  .cart-qty-input::-webkit-outer-spin-button,
+  .cart-qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+</style>
+
 {% endblock %}
