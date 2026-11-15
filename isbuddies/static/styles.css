@@ -1,7 +1,6 @@
 /* IS Buddies shared theme. */
 :root {
-  --navy: #172554;
-  --navy2:rgb(20, 49, 144);
+  --navy: #172d75;
   --yellow: #f7bd32;
   --page-bg: #f5f7fc;
   --text: #172033;
@@ -13,9 +12,9 @@
   --dashed: #9aa8c7;
   --muted: #64708a;
   --ok-bg: #d9f5e5;
-  --ok-text: #1d9c50;
+  --ok-text: #1a8846;
   --bad-bg: #fde1e6;
-  --bad-text: #c62020;
+  --bad-text: #cd2222;
   --warn-bg: #fff0c2;
 }
 
@@ -169,8 +168,7 @@ th {
 }
 .tag {
   display: inline-block;
-  /* background: var(--soft-indigo); */
-  color: var(--navy2);
+  color: var(--navy);
   border-radius: 12px;
   padding: 4px 10px;
   font-size: 11px;
@@ -186,11 +184,9 @@ th {
   font-weight: 500;
 }
 .p.g {
-  /* background: var(--ok-bg); */
   color: var(--ok-text);
 }
 .p.r {
-  /* background: var(--bad-bg); */
   color: var(--bad-text);
 }
 .sc {
@@ -582,6 +578,86 @@ h2 {
   box-sizing: border-box;
 }
 
+.sales-history-card {
+  flex: 0 0 auto;
+}
+
+.sales-history-filters > .f {
+  margin-bottom: 0;
+}
+
+.sales-history-filters > .btn {
+  align-self: flex-end;
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.pos-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(320px, 2fr);
+  align-items: start;
+}
+
+.pos-layout-readonly {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pos-products-scroll {
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.pos-cart-scroll {
+  max-height: 220px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.pos-add-button {
+  padding: 4px 10px;
+  min-height: auto;
+  font-size: 11px;
+}
+
+.pos-order-actions > .btn {
+  flex: 1 1 120px;
+}
+
+.pos-receipt-card {
+  flex: 0 0 auto;
+  margin-top: 20px;
+  border: 2px solid var(--navy);
+}
+
+.pos-receipt-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pos-receipt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 980px) {
+  .pos-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .pos-receipt-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 .row > .card {
   flex: 1 1 230px;
 }
@@ -689,6 +765,7 @@ td {
 
 .btn,
 button.btn {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -908,6 +985,59 @@ button.btn:hover {
   padding: 10px 12px;
   border-radius: 10px;
   background: #fff0f1;
+}
+
+.password-field {
+  position: relative;
+  display: block;
+}
+
+.password-field .in {
+  padding-right: 48px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  color: #64708a;
+  background: transparent;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.password-toggle:hover {
+  color: var(--navy);
+  background: var(--tint);
+}
+
+.password-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.password-toggle .eye-off-icon {
+  display: none;
+}
+
+.password-toggle[aria-pressed="true"] .eye-icon {
+  display: none;
+}
+
+.password-toggle[aria-pressed="true"] .eye-off-icon {
+  display: block;
 }
 
 /* ===== Responsive navigation and page layouts ===== */

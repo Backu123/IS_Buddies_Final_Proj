@@ -7,7 +7,7 @@
   <span class="tag">{{ current_user.role_label }} Overview</span>
 </div>
 
-<div class="row">
+<div class="row dashboard-stats">
   <div class="card">
     <span class="ic c">{{ icon('trend', 20) }}</span>
     Sales Today
@@ -22,6 +22,11 @@
     <span class="ic">{{ icon('inventory', 20) }}</span>
     Total Products
     <b class="n" id="stat-total-products">0</b>
+  </div>
+  <div class="card">
+    <span class="ic">{{ icon('users', 20) }}</span>
+    Total Users
+    <b class="n" id="stat-total-users">0</b>
   </div>
   <div class="card">
     <span class="ic b">{{ icon('sales', 20) }}</span>
@@ -105,6 +110,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("stat-sales-today").textContent = "₱ " + Number(data.sales_today).toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2});
     document.getElementById("stat-low-stock").textContent = data.low_stock;
     document.getElementById("stat-total-products").textContent = data.total_products;
+    document.getElementById("stat-total-users").textContent = data.total_users;
     document.getElementById("stat-best-seller").textContent = data.best_seller + (data.best_seller_qty ? ` (${data.best_seller_qty} sold)` : "");
 
     // Top products table
