@@ -1,6 +1,6 @@
 /* IS Buddies shared theme. */
 :root {
-  --navy: #172554;
+  --navy: #172d75;
   --yellow: #f7bd32;
   --page-bg: #f5f7fc;
   --text: #172033;
@@ -12,9 +12,9 @@
   --dashed: #9aa8c7;
   --muted: #64708a;
   --ok-bg: #d9f5e5;
-  --ok-text: #14532d;
+  --ok-text: #1a8846;
   --bad-bg: #fde1e6;
-  --bad-text: #9b1c1c;
+  --bad-text: #cd2222;
   --warn-bg: #fff0c2;
 }
 
@@ -168,7 +168,6 @@ th {
 }
 .tag {
   display: inline-block;
-  background: var(--soft-indigo);
   color: var(--navy);
   border-radius: 12px;
   padding: 4px 10px;
@@ -185,11 +184,9 @@ th {
   font-weight: 500;
 }
 .p.g {
-  background: var(--ok-bg);
   color: var(--ok-text);
 }
 .p.r {
-  background: var(--bad-bg);
   color: var(--bad-text);
 }
 .sc {
